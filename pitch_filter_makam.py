@@ -273,7 +273,7 @@ class PitchPostFilter:
         longest_chunk = self.pitch_chunks[chunk_length.index(max(chunk_length))]
         energy = [element[2] for element in longest_chunk]
         min_energy = (sum(energy) / len(energy)) / 6.
-
+        print min_energy
         for i in range(0, len(self.pitch_chunks)):
             temp_energy = [element[2] for element in self.pitch_chunks[i]]
             ave_energy = sum(temp_energy) / len(temp_energy)
@@ -288,11 +288,6 @@ class PitchPostFilter:
     def run(self):
 
         self.correct_octave_errors_by_chunks()
-
-        #self.pitch = list(reversed(self.pitch))
-        #self.correct_octave_errors_by_chunks()
-        #self.pitch = list(reversed(self.pitch))
-
         self.remove_extreme_values()
 
         self.correct_jumps()
@@ -309,7 +304,5 @@ class PitchPostFilter:
 
         self.correct_octave_errors_by_chunks()
         self.filter_chunks_by_energy(chunk_limit=60)
-
-        self.correct_octave_errors_by_chunks()
 
         return self.pitch
