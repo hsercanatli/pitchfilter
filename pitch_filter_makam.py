@@ -10,7 +10,7 @@ class PitchPostFilter:
         self.pitch = pitch['pitch']
         self.pitch_chunks = {}
 
-        self.count_octave_correction = 0
+        self.count_octave_correction = 1
 
         for element in self.pitch:
             if element[1] == 0 or element[1] == 0.:
@@ -88,7 +88,7 @@ class PitchPostFilter:
 
         if av == 0:
             return True
-        elif (d / av) < 0.35:
+        elif (d / av) < 0.2:
             return True
         else:
             return False
@@ -106,43 +106,39 @@ class PitchPostFilter:
 
         self.count_octave_correction = 0
         for i in range(1, len(self.pitch_chunks) - 1):
-            if len(self.pitch_chunks[i]) < len(self.pitch_chunks[i - 1]) or \
-               len(self.pitch_chunks[i]) < len(self.pitch_chunks[i + 1]):
+            if len(self.pitch_chunks[i]) <= len(self.pitch_chunks[i - 1]) * 1.2 or \
+                            len(self.pitch_chunks[i]) <= len(self.pitch_chunks[i + 1]) * 1.2:
 
                 med_chunk_i = median([element[1] for element in self.pitch_chunks[i]])
                 med_chunk_follow = median([element[1] for element in self.pitch_chunks[i + 1]])
                 med_chunk_prev = median([element[1] for element in self.pitch_chunks[i - 1]])
 
                 if (self.are_close(self.pitch_chunks[i][0][1] / 2., self.pitch_chunks[i - 1][-1][1]) and
-                                   self.pitch_chunks[i][-1][1] / 1.5 > self.pitch_chunks[i + 1][0][1]) or \
-                                  (self.are_close(med_chunk_i / 2., med_chunk_prev) and
-                                   med_chunk_prev / 1.5 > med_chunk_follow):
-                    print "correct_octave_errors_by_chunks, cond 1"
+                                self.pitch_chunks[i][-1][1] / 1.5 > self.pitch_chunks[i + 1][0][1]) or \
+                        (self.are_close(med_chunk_i / 2., med_chunk_prev) and
+                                     med_chunk_i / 1.5 > med_chunk_follow):
                     self.count_octave_correction += 1
                     for j in range(0, len(self.pitch_chunks[i])): self.pitch_chunks[i][j][1] /= 2.
 
                 elif (self.are_close(self.pitch_chunks[i][-1][1] / 2., self.pitch_chunks[i + 1][0][1]) and
                                      self.pitch_chunks[i][0][1] / 1.5 > self.pitch_chunks[i - 1][-1][1]) or \
-                                    (self.are_close(med_chunk_prev / 2., med_chunk_i) and
-                                     med_chunk_i / 1.5 > med_chunk_prev):
-                    print "correct_octave_errors_by_chunks, cond 2"
+                        (self.are_close(med_chunk_i / 2., med_chunk_follow) and
+                                        med_chunk_i / 1.5 > med_chunk_prev):
                     self.count_octave_correction += 1
                     for j in range(0, len(self.pitch_chunks[i])): self.pitch_chunks[i][j][1] /= 2.
 
                 # other condition
                 elif self.are_close(self.pitch_chunks[i][0][1] * 2., self.pitch_chunks[i - 1][-1][1]) and \
-                                    self.pitch_chunks[i][-1][1] * 1.5 < self.pitch_chunks[i + 1][0][1] or \
-                                   (self.are_close(med_chunk_i * 2., med_chunk_prev) and
-                                    med_chunk_prev * 1.5 < med_chunk_follow):
+                                        self.pitch_chunks[i][-1][1] * 1.5 < self.pitch_chunks[i + 1][0][1] or \
+                        (self.are_close(med_chunk_i * 2., med_chunk_prev) and
+                                        med_chunk_prev * 1.5 < med_chunk_follow):
 
-                    print "correct_octave_errors_by_chunks, cond 3"
                     self.count_octave_correction += 1
                     for j in range(0, len(self.pitch_chunks[i])): self.pitch_chunks[i][j][1] *= 2.
 
-                elif self.pitch_chunks[i][0][1] * 1.5 < self.pitch_chunks[i - 1][-1][1] and \
-                             self.are_close(self.pitch_chunks[i][-1][1] * 2., self.pitch_chunks[i + 1][0][1]) or \
-                            (self.are_close(med_chunk_prev * 2, med_chunk_i) and med_chunk_i * 1.5 < med_chunk_prev):
-                    print "correct_octave_errors_by_chunks, cond 4"
+                elif (self.pitch_chunks[i][0][1] * 1.5 < self.pitch_chunks[i - 1][-1][1] and \
+                         self.are_close(self.pitch_chunks[i][-1][1] * 2., self.pitch_chunks[i + 1][0][1])) or \
+                        (self.are_close(med_chunk_prev * 2, med_chunk_follow) and med_chunk_i * 1.5 < med_chunk_prev):
                     self.count_octave_correction += 1
                     for j in range(0, len(self.pitch_chunks[i])): self.pitch_chunks[i][j][1] *= 2.
 
@@ -160,11 +156,9 @@ class PitchPostFilter:
                         self.are_close(self.pitch[i + 5][1], self.pitch[i + 6][1]):
                     if not self.are_close(self.pitch[i][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i][1], self.pitch[i + 4][1]):
-                        print "correct_jumps, quadruple point - cond 1"
                         self.pitch[i][1] = self.pitch[i - 1][1]
                     if not self.are_close(self.pitch[i + 3][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i + 3][1], self.pitch[i + 4][1]):
-                        print "correct_jumps, quadruple point - cond 2"
                         self.pitch[i + 3][1] = self.pitch[i + 4][1]
 
                 # triple point
@@ -172,11 +166,9 @@ class PitchPostFilter:
                         and self.are_close(self.pitch[i + 4][1], self.pitch[i + 5][1]):
                     if not self.are_close(self.pitch[i][1], self.pitch[i - 1][1]) \
                             and not self.are_close(self.pitch[i][1], self.pitch[i + 3][1]):
-                        print "correct_jumps, triple point - cond 1"
                         self.pitch[i][1] = self.pitch[i - 1][1]
                     if not self.are_close(self.pitch[i + 2][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i + 2][1], self.pitch[i + 3][1]):
-                        print "correct_jumps, triple point - cond 2"
                         self.pitch[i + 2][1] = self.pitch[i + 3][1]
 
                 # double point
@@ -184,12 +176,10 @@ class PitchPostFilter:
                         self.are_close(self.pitch[i + 3][1], self.pitch[i + 4][1]):
                     if not self.are_close(self.pitch[i][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i][1], self.pitch[i + 2][1]):
-                        print "correct_jumps, double point - cond 1"
                         self.pitch[i][1] = self.pitch[i - 1][1]
 
                     if not self.are_close(self.pitch[i + 1][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i + 1][1], self.pitch[i + 2][1]):
-                        print "correct_jumps, double point - cond 2"
                         self.pitch[i + 1][1] = self.pitch[i + 2][1]
 
                 # single point
@@ -197,12 +187,11 @@ class PitchPostFilter:
                         self.are_close(self.pitch[i + 2][1], self.pitch[i + 3][1]):
                     if not self.are_close(self.pitch[i][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i][1], self.pitch[i + 1][1]):
-                        print "correct_jumps, single point - cond 1"
                         self.pitch[i] = self.pitch[i - 1][1]
 
     def correct_oct_error(self):
         pitch = [self.pitch[i][1] for i in range(len(self.pitch))]
-        midf0 = median(pitch) + mean(pitch) / 2
+        midf0 = (median(pitch) + mean(pitch)) / 2
 
         for i in range(4, len(self.pitch) - 2):
             # if previous values are continuous
@@ -211,34 +200,27 @@ class PitchPostFilter:
                     self.are_close(self.pitch[i - 3][1], self.pitch[i - 4][1]):
                 if self.pitch[i][1] > (midf0 * 1.8):
                     if self.are_close(self.pitch[i - 1][1], self.pitch[i][1] / 2.):
-                        print "correct octave error - 1"
                         self.pitch[i][1] /= 2.
                     elif self.are_close(self.pitch[i - 1][1], self.pitch[i][1] / 4.):
-                        print "correct octave error - 2"
                         self.pitch[i][1] /= 4.
                 elif self.pitch[i][1] < (midf0 / 1.8):
                     if self.are_close(self.pitch[i - 1][1], self.pitch[i][1] * 2):
-                        print "correct octave error - 3"
                         self.pitch[i][1] *= 2.
                     elif self.are_close(self.pitch[i - 1][1], self.pitch[i][1] * 4):
                         self.pitch[i][1] *= 4.
-                        print "correct octave error - 4"
 
     def remove_extreme_values(self):
         pitch = [element[1] for element in self.pitch]
         pitch_max = max(pitch)
-
         pitch_mean = mean(pitch)
         pitch_std = std(pitch)
 
         n = list(histogram(pitch, 100))
-        print "first max", pitch_max
 
         for i in range(0, len(n[1]) - 1):
             if n[0][i] == 0 and n[0][i + 1] == 0:
                 if sum(n[0][0: i + 1]) > 0.9 * sum(n[0]):
                     pitch_max = (n[1][i] + n[1][i + 1]) / 2.
-                    print "new max", pitch_max
 
         pitch_max_cand = max(pitch_mean * 4., pitch_mean + (2 * pitch_std))
         pitch_max = min(pitch_max, pitch_max_cand)
@@ -247,13 +229,14 @@ class PitchPostFilter:
         for j in range(0, len(self.pitch)):
             if self.pitch[j][1] >= pitch_max:
                 self.pitch[j][1] = 0
+                self.pitch[j][2] = 0
 
         # min values filter
         pitch_min = pitch_mean / 4.
-        print "min pitch", pitch_min
         for j in range(0, len(self.pitch)):
             if self.pitch[j][1] <= pitch_min:
                 self.pitch[j][1] = 0
+                self.pitch[j][2] = 0
 
     def filter_noise_region(self):
         for i in range(0, 3):
@@ -262,6 +245,7 @@ class PitchPostFilter:
                 if not self.are_close(self.pitch[i - 1][1], self.pitch[i][1]) and \
                         self.are_close(self.pitch[i][1], self.pitch[i + 1][1]):
                     self.pitch[i][1] = 0
+                    self.pitch[i][2] = 0
 
             for j in range(2, len(self.pitch) - 3):
                 if not self.are_close(self.pitch[j - 2][1], self.pitch[j][1]) and \
@@ -279,14 +263,16 @@ class PitchPostFilter:
                     not self.are_close(self.pitch[i][1], self.pitch[i + 2][1]) and \
                     not self.are_close(self.pitch[i - 1], self.pitch[i + 2][1]):
                 self.pitch[i][1] = 0
+                self.pitch[i][2] = 0
                 self.pitch[i + 1][1] = 0
+                self.pitch[i + 2][2] = 0
 
     def filter_chunks_by_energy(self, chunk_limit):
-        self.decompose_into_chunks(bottom_limit=0.7, upper_limit=1.3)
+        self.decompose_into_chunks(bottom_limit=0.8, upper_limit=1.2)
         chunk_length = [len(element) for element in self.pitch_chunks]
         longest_chunk = self.pitch_chunks[chunk_length.index(max(chunk_length))]
         energy = [element[2] for element in longest_chunk]
-        min_energy = (sum(energy) / len(energy)) / 36.
+        min_energy = (sum(energy) / len(energy)) / 6.
 
         for i in range(0, len(self.pitch_chunks)):
             temp_energy = [element[2] for element in self.pitch_chunks[i]]
@@ -302,6 +288,11 @@ class PitchPostFilter:
     def run(self):
 
         self.correct_octave_errors_by_chunks()
+
+        #self.pitch = list(reversed(self.pitch))
+        #self.correct_octave_errors_by_chunks()
+        #self.pitch = list(reversed(self.pitch))
+
         self.remove_extreme_values()
 
         self.correct_jumps()
@@ -319,7 +310,6 @@ class PitchPostFilter:
         self.correct_octave_errors_by_chunks()
         self.filter_chunks_by_energy(chunk_limit=60)
 
-        # while self.count_octave_correction != 0:
         self.correct_octave_errors_by_chunks()
 
         return self.pitch
