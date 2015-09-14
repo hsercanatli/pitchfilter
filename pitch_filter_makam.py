@@ -3,18 +3,21 @@ __author__ = 'hsercanatli'
 from numpy import median, mean, std
 from numpy import delete
 from numpy import histogram
+import json
 
 
 class PitchPostFilter:
-    def __init__(self, pitch):
-        self.pitch = pitch['pitch']
+    def __init__(self, fname, out=False):
+        self.fname = fname
+        with open(fname) as f: self.data = json.load(f)
+        self.pitch = self.data['pitch']
+        self.out = out
         self.pitch_chunks = {}
 
         self.count_octave_correction = 1
 
         for element in self.pitch:
-            if element[1] == 0 or element[1] == 0.:
-                element[1] = 0.
+            if element[1] == 0 or element[1] == 0.: element[1] = 0.
 
     def energy_filter(self, threshold=0.002):
         """
@@ -41,7 +44,7 @@ class PitchPostFilter:
 
                 else:
                     temp_pitch.append(self.pitch[i])
-                    pitch_chunks.append(temp_pitch)
+                    if len(temp_pitch) > 0: pitch_chunks.append(temp_pitch)
                     temp_pitch = []
             # non-zero chunks
             else:
@@ -50,9 +53,9 @@ class PitchPostFilter:
                     temp_pitch.append(self.pitch[i])
                 else:
                     temp_pitch.append(self.pitch[i])
-                    pitch_chunks.append(temp_pitch)
+                    if len(temp_pitch) > 0: pitch_chunks.append(temp_pitch)
                     temp_pitch = []
-        pitch_chunks.append(temp_pitch)
+        if len(temp_pitch) > 0: pitch_chunks.append(temp_pitch)
         self.pitch_chunks = pitch_chunks
 
     def post_filter_chunks(self, chunk_limit=50):
@@ -71,6 +74,7 @@ class PitchPostFilter:
         for ind in small_chunks:
             for element in self.pitch_chunks[ind]:
                 element[1] = 0
+                element[2] = 0
 
         self.recompose_chunks()
 
@@ -99,7 +103,7 @@ class PitchPostFilter:
         zero_chunks = []
         zero_ind = []
         for j in range(len(self.pitch_chunks)):
-            if self.pitch_chunks[j][0][1] == 0 or self.pitch_chunks[j][0][1] == 0.:
+            if float(self.pitch_chunks[j][0][1]) == 0.:
                 zero_chunks.append([j, self.pitch_chunks[j]])
                 zero_ind.append(j)
         self.pitch_chunks = list(delete(self.pitch_chunks, zero_ind))
@@ -148,8 +152,8 @@ class PitchPostFilter:
     def correct_jumps(self):
         for i in range(4, len(self.pitch) - 6):
             if self.are_close(self.pitch[i - 4][1], self.pitch[i - 3][1]) and \
-                    self.are_close(self.pitch[i - 3][1], self.pitch[i - 2][1]) \
-                    and self.are_close(self.pitch[i - 2][1], self.pitch[i - 1][1]):
+                    self.are_close(self.pitch[i - 3][1], self.pitch[i - 2][1]) and \
+                    self.are_close(self.pitch[i - 2][1], self.pitch[i - 1][1]):
 
                 # quadruple point
                 if self.are_close(self.pitch[i + 4][1], self.pitch[i + 5][1]) and \
@@ -187,7 +191,7 @@ class PitchPostFilter:
                         self.are_close(self.pitch[i + 2][1], self.pitch[i + 3][1]):
                     if not self.are_close(self.pitch[i][1], self.pitch[i - 1][1]) and \
                             not self.are_close(self.pitch[i][1], self.pitch[i + 1][1]):
-                        self.pitch[i] = self.pitch[i - 1][1]
+                        self.pitch[i][1] = self.pitch[i - 1][1]
 
     def correct_oct_error(self):
         pitch = [self.pitch[i][1] for i in range(len(self.pitch))]
@@ -273,7 +277,6 @@ class PitchPostFilter:
         longest_chunk = self.pitch_chunks[chunk_length.index(max(chunk_length))]
         energy = [element[2] for element in longest_chunk]
         min_energy = (sum(energy) / len(energy)) / 6.
-        print min_energy
         for i in range(0, len(self.pitch_chunks)):
             temp_energy = [element[2] for element in self.pitch_chunks[i]]
             ave_energy = sum(temp_energy) / len(temp_energy)
@@ -304,5 +307,9 @@ class PitchPostFilter:
 
         self.correct_octave_errors_by_chunks()
         self.filter_chunks_by_energy(chunk_limit=60)
+
+        if self.out:
+            self.data['pitch'] = self.pitch
+            with open(self.fname[:-5] + "_filtered.json", 'w') as f: json.dump(self.data, f)
 
         return self.pitch
