@@ -38,11 +38,13 @@ Now you can install the rest of the dependencies:
 
 Author
 -------
-Hasan Sercan Atlı <hsercanatli AT gmail DOT com>
+Hasan Sercan Atlı 
+hsercanatli@gmail.com
 
 Contributors
 -------
-Sertan Şentürk (packaging) <contact AT sertansenturk DOT com>
+Sertan Şentürk (packaging) 
+contact@sertansenturk.com
 
 References
 -------
