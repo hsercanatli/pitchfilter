@@ -3,21 +3,10 @@ __author__ = 'hsercanatli'
 from numpy import median, mean, std
 from numpy import delete
 from numpy import histogram
-import json
-
 
 class PitchPostFilter:
-    def __init__(self, fname, out=False):
-        self.fname = fname
-        with open(fname) as f: self.data = json.load(f)
-        self.pitch = self.data['pitch']
-        self.out = out
-        self.pitch_chunks = {}
-
-        self.count_octave_correction = 1
-
-        for element in self.pitch:
-            if element[1] == 0 or element[1] == 0.: element[1] = 0.
+    def __init__(self):
+        pass
 
     def energy_filter(self, threshold=0.002):
         """
@@ -288,7 +277,14 @@ class PitchPostFilter:
                         element[2] = 0
         self.recompose_chunks()
 
-    def run(self):
+    def run(self, pitch):
+        self.pitch = pitch
+        self.pitch_chunks = {}
+
+        self.count_octave_correction = 1
+
+        for element in self.pitch:
+            if element[1] == 0 or element[1] == 0.: element[1] = 0.
 
         self.correct_octave_errors_by_chunks()
         self.remove_extreme_values()
@@ -307,9 +303,5 @@ class PitchPostFilter:
 
         self.correct_octave_errors_by_chunks()
         self.filter_chunks_by_energy(chunk_limit=60)
-
-        if self.out:
-            self.data['pitch'] = self.pitch
-            with open(self.fname[:-5] + "_filtered.json", 'w') as f: json.dump(self.data, f)
 
         return self.pitch
