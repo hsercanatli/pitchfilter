@@ -1,4 +1,4 @@
 pitchfilter.egg-info/
 *.pyc
 *.*~
-
+/.idea
