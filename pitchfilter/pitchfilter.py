@@ -4,6 +4,7 @@ from numpy import median, mean, std
 from numpy import delete
 from numpy import histogram
 
+
 class PitchPostFilter:
     def __init__(self, energy_threshold=0.002, bottom_limit=0.7, upper_limit=1.3, chunk_limit=50):
         self.energy_threshold = energy_threshold
@@ -11,7 +12,7 @@ class PitchPostFilter:
         self.upper_limit = upper_limit
         self.chunk_limit = chunk_limit
 
-    def decompose_into_chunks(self, pitch, bottom_limit, upper_limit):
+    def decompose_into_chunks(self, pitch):
         """
         decomposes the given pitch track into the chunks.
         """
@@ -32,7 +33,7 @@ class PitchPostFilter:
             # non-zero chunks
             else:
                 interval = float(pitch[i + 1][1]) / float(pitch[i][1])
-                if bottom_limit < interval < upper_limit:
+                if self.bottom_limit < interval < self.upper_limit:
                     temp_pitch.append(pitch[i])
                 else:
                     temp_pitch.append(pitch[i])
@@ -42,12 +43,12 @@ class PitchPostFilter:
 
         return pitch_chunks
 
-    def recompose_chunks(self, pitch_chunks):
+    @staticmethod
+    def recompose_chunks(pitch_chunks):
         """
         recomposes the given pitch chunks as a new pitch track
         """
-        pitch = [pitch_chunks[i][j] for i in range(len(pitch_chunks))
-                      for j in range(len(pitch_chunks[i]))]
+        pitch = [pitch_chunks[i][j] for i in range(len(pitch_chunks)) for j in range(len(pitch_chunks[i]))]
         return pitch
 
     @staticmethod
@@ -63,8 +64,7 @@ class PitchPostFilter:
             return False
 
     def correct_octave_errors_by_chunks(self, pitch):
-        pitch_chunks = self.decompose_into_chunks(pitch=pitch, bottom_limit=self.bottom_limit,
-                                                  upper_limit=self.upper_limit)
+        pitch_chunks = self.decompose_into_chunks(pitch=pitch)
 
         zero_chunks = []
         zero_ind = []
@@ -74,36 +74,31 @@ class PitchPostFilter:
                 zero_ind.append(j)
         pitch_chunks = list(delete(pitch_chunks, zero_ind))
 
-        count_octave_correction = 0
         for i in range(1, len(pitch_chunks) - 1):
-            if len(pitch_chunks[i]) <= len(pitch_chunks[i - 1]) * 1.2 or \
-                            len(pitch_chunks[i]) <= len(pitch_chunks[i + 1]) * 1.2:
+            if len(pitch_chunks[i]) <= len(pitch_chunks[i - 1]) * 1.2 or len(pitch_chunks[i]) <= len(
+                    pitch_chunks[i + 1]) * 1.2:
 
                 med_chunk_i = median([element[1] for element in pitch_chunks[i]])
                 med_chunk_follow = median([element[1] for element in pitch_chunks[i + 1]])
                 med_chunk_prev = median([element[1] for element in pitch_chunks[i - 1]])
 
-                if (self.are_close(pitch_chunks[i][0][1] / 2., pitch_chunks[i - 1][-1][1]) and
-                                pitch_chunks[i][-1][1] / 1.5 > pitch_chunks[i + 1][0][1]) or \
-                        (self.are_close(med_chunk_i / 2., med_chunk_prev) and
-                                     med_chunk_i / 1.5 > med_chunk_follow):
+                if (self.are_close(pitch_chunks[i][0][1] / 2., pitch_chunks[i - 1][-1][1]) and pitch_chunks[i][-1][
+                    1] / 1.5 > pitch_chunks[i + 1][0][1]) or \
+                        (self.are_close(med_chunk_i / 2., med_chunk_prev) and med_chunk_i / 1.5 > med_chunk_follow):
                     for j in range(0, len(pitch_chunks[i])): pitch_chunks[i][j][1] /= 2.
 
-                elif (self.are_close(pitch_chunks[i][-1][1] / 2., pitch_chunks[i + 1][0][1]) and
-                                     pitch_chunks[i][0][1] / 1.5 > pitch_chunks[i - 1][-1][1]) or \
-                        (self.are_close(med_chunk_i / 2., med_chunk_follow) and
-                                        med_chunk_i / 1.5 > med_chunk_prev):
+                elif (self.are_close(pitch_chunks[i][-1][1] / 2., pitch_chunks[i + 1][0][1]) and pitch_chunks[i][0][
+                    1] / 1.5 > pitch_chunks[i - 1][-1][1]) or \
+                        (self.are_close(med_chunk_i / 2., med_chunk_follow) and med_chunk_i / 1.5 > med_chunk_prev):
                     for j in range(0, len(pitch_chunks[i])): pitch_chunks[i][j][1] /= 2.
 
                 # other condition
-                elif self.are_close(pitch_chunks[i][0][1] * 2., pitch_chunks[i - 1][-1][1]) and \
-                                        pitch_chunks[i][-1][1] * 1.5 < pitch_chunks[i + 1][0][1] or \
-                        (self.are_close(med_chunk_i * 2., med_chunk_prev) and
-                                        med_chunk_prev * 1.5 < med_chunk_follow):
+                elif self.are_close(pitch_chunks[i][0][1] * 2., pitch_chunks[i - 1][-1][1]) and pitch_chunks[i][-1][
+                    1] * 1.5 < pitch_chunks[i + 1][0][1] or \
+                        (self.are_close(med_chunk_i * 2., med_chunk_prev) and med_chunk_prev * 1.5 < med_chunk_follow):
                     for j in range(0, len(pitch_chunks[i])): pitch_chunks[i][j][1] *= 2.
 
-                elif (pitch_chunks[i][0][1] * 1.5 < pitch_chunks[i - 1][-1][1] and
-                          self.are_close(pitch_chunks[i][-1][1] * 2., pitch_chunks[i + 1][0][1])) or \
+                elif (pitch_chunks[i][0][1] * 1.5 < pitch_chunks[i - 1][-1][1] and self.are_close(pitch_chunks[i][-1][1] * 2., pitch_chunks[i + 1][0][1])) or \
                         (self.are_close(med_chunk_prev * 2, med_chunk_follow) and med_chunk_i * 1.5 < med_chunk_prev):
                     for j in range(0, len(pitch_chunks[i])): pitch_chunks[i][j][1] *= 2.
 
@@ -178,7 +173,8 @@ class PitchPostFilter:
 
         return pitch
 
-    def remove_extreme_values(self, pitch):
+    @staticmethod
+    def remove_extreme_values(pitch):
         pitch_series = [element[1] for element in pitch]
         pitch_max = max(pitch_series)
         pitch_mean = mean(pitch_series)
@@ -240,8 +236,8 @@ class PitchPostFilter:
 
         return pitch
 
-    def filter_chunks_by_energy(self, pitch, chunk_limit):
-        pitch_chunks = self.decompose_into_chunks(pitch=pitch, bottom_limit=0.8, upper_limit=1.2)
+    def filter_chunks_by_energy(self, pitch):
+        pitch_chunks = self.decompose_into_chunks(pitch=pitch)
 
         chunk_length = [len(element) for element in pitch_chunks]
         longest_chunk = pitch_chunks[chunk_length.index(max(chunk_length))]
@@ -254,7 +250,7 @@ class PitchPostFilter:
             ave_energy = sum(temp_energy) / len(temp_energy)
 
             if ave_energy is not 0:
-                if len(pitch_chunks[i]) <= chunk_limit or ave_energy <= min_energy:
+                if len(pitch_chunks[i]) <= self.chunk_limit or ave_energy <= min_energy:
                     for element in pitch_chunks[i]:
                         element[1] = 0
                         element[2] = 0
@@ -281,6 +277,6 @@ class PitchPostFilter:
         new_pitch = list(reversed(new_pitch))
 
         pitch = self.correct_octave_errors_by_chunks(pitch=new_pitch)
-        new_pitch = self.filter_chunks_by_energy(pitch=pitch, chunk_limit=self.chunk_limit)
+        new_pitch = self.filter_chunks_by_energy(pitch=pitch)
 
         return new_pitch
