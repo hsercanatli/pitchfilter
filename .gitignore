@@ -2,3 +2,4 @@ pitchfilter.egg-info/
 *.pyc
 *.*~
 /.idea
+test.py
