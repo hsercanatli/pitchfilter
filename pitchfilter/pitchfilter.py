@@ -42,26 +42,6 @@ class PitchPostFilter:
 
         return pitch_chunks
 
-    def post_filter_chunks(self, chunk_limit):
-        """
-        Postfilter for the pitchChunks
-        deletes the zero chunks
-        deletes the chunks smaller than 50 samples(default)
-        """
-        self.decompose_into_chunks(0.7, 1.3)
-
-        # deleting small Chunks
-        small_chunks = [ii for ii in range(0, len(self.pitch_chunks)) if len(self.pitch_chunks[ii]) <= chunk_limit]
-
-        # for i in small_chunks: print(len(pitch_chunks[i]), pitch_chunks[i])
-        # replacing the small chunks with 0 hz
-        for ind in small_chunks:
-            for element in self.pitch_chunks[ind]:
-                element[1] = 0
-                element[2] = 0
-
-        self.recompose_chunks()
-
     def recompose_chunks(self, pitch_chunks):
         """
         recomposes the given pitch chunks as a new pitch track
