@@ -7,5 +7,5 @@ setup(name='pitchfilter',
       description='Post filtering on pitch tracks',
       author='Hasan Sercan Atli',
       url='https://github.com/hsercanatli/pitch-post-filter',
-      packages=['pitchfilter'],
-)
+      packages=['pitchfilter'], requires=['numpy']
+      )
