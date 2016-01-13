@@ -6,11 +6,36 @@ from numpy import histogram
 
 
 class PitchPostFilter:
-    def __init__(self, energy_threshold=0.002, bottom_limit=0.7, upper_limit=1.3, chunk_limit=50):
+    def __init__(self, energy_threshold=0.002, bottom_limit=0.7, upper_limit=1.3, chunk_limit=50,
+                 bottom_freq_limit=64, upper_freq_limit=1024):
+
         self.energy_threshold = energy_threshold
         self.bottom_limit = bottom_limit
         self.upper_limit = upper_limit
         self.chunk_limit = chunk_limit
+        self.bottom_freq_limit = bottom_freq_limit
+        self.upper_freq_limit = upper_freq_limit
+
+    def post_filter_chunks(self, pitch_chunks):
+        """
+        Postfilter for the pitchChunks
+        deletes the zero chunks
+        deletes the chunks smaller than 60 samples(default)
+        """
+        # deleting Zero chunks
+        zero_chunks = [i for i in range(0, len(pitch_chunks)) if pitch_chunks[i][0][1] == 0]
+        pitch_chunks = delete(pitch_chunks, zero_chunks)
+
+        # deleting small Chunks
+        small_chunks = [i for i in range(0, len(pitch_chunks)) if len(pitch_chunks[i]) <= self.chunk_limit]
+        pitch_chunks = delete(pitch_chunks, small_chunks)
+
+        # frequency limit
+        limit_chunks = [i for i in range(0, len(pitch_chunks)) if pitch_chunks[i][0][1] >= self.upper_freq_limit or
+                        pitch_chunks[i][0][1] <= self.bottom_freq_limit]
+        pitch_chunks = delete(pitch_chunks, limit_chunks)
+
+        return pitch_chunks
 
     def decompose_into_chunks(self, pitch):
         """
