@@ -3,3 +3,5 @@ pitchfilter.egg-info/
 *.*~
 /.idea
 test.py
+*.mp3
+*.wav
