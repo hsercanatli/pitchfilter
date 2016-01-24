@@ -5,3 +5,4 @@ pitchfilter.egg-info/
 test.py
 *.mp3
 *.wav
+.ipynb_checkpoints
