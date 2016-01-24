@@ -6,10 +6,9 @@ from numpy import histogram
 
 
 class PitchPostFilter:
-    def __init__(self, min_confidence=0.002, lower_interval_thres=0.7, upper_interval_thres=1.3, 
-                 min_chunk_size=50, min_freq=64, max_freq=1024):
+    def __init__(self, lower_interval_thres=0.7, upper_interval_thres=1.3,
+                 min_chunk_size=40, min_freq=64, max_freq=1024):
 
-        self.min_confidence = min_confidence  # minimum confidence the pitch value can have
         self.lower_interval_thres = lower_interval_thres  # the smallest value the interval can stay before a new chunk is formed
         self.upper_interval_thres = upper_interval_thres  # the highest value the interval can stay before a new chunk is formed
         self.min_chunk_size = min_chunk_size  # minimum number of samples to form a chunk
@@ -20,7 +19,7 @@ class PitchPostFilter:
         """
         Postfilter for the pitchChunks
         deletes the zero chunks
-        deletes the chunks smaller than 60 samples(default)
+        deletes the chunks smaller than 50 samples(default)
         """
         # deleting Zero chunks
         zero_chunks = [i for i in range(0, len(pitch_chunks)) if pitch_chunks[i][0][1] == 0]
@@ -286,22 +285,22 @@ class PitchPostFilter:
         for element in pitch:
             if element[1] == 0 or element[1] == 0.: element[1] = 0.
 
-        new_pitch = self.correct_octave_errors_by_chunks(pitch=pitch)
-        pitch = self.remove_extreme_values(pitch=new_pitch)
+        pitch = self.correct_octave_errors_by_chunks(pitch=pitch)
+        pitch = self.remove_extreme_values(pitch=pitch)
 
-        new_pitch = self.correct_jumps(pitch=pitch)
-        new_pitch = list(reversed(new_pitch))
-        pitch = self.correct_jumps(pitch=new_pitch)
+        pitch = self.correct_jumps(pitch=pitch)
+        pitch = list(reversed(pitch))
+        pitch = self.correct_jumps(pitch=pitch)
         pitch = list(reversed(pitch))
 
-        new_pitch = self.filter_noise_region(pitch=pitch)
+        pitch = self.filter_noise_region(pitch=pitch)
 
-        pitch = self.correct_oct_error(pitch=new_pitch)
+        pitch = self.correct_oct_error(pitch=pitch)
         pitch = list(reversed(pitch))
-        new_pitch = self.correct_oct_error(pitch=pitch)
-        new_pitch = list(reversed(new_pitch))
+        pitch = self.correct_oct_error(pitch=pitch)
+        pitch = list(reversed(pitch))
 
-        pitch = self.correct_octave_errors_by_chunks(pitch=new_pitch)
-        new_pitch = self.filter_chunks_by_energy(pitch=pitch)
+        pitch = self.correct_octave_errors_by_chunks(pitch=pitch)
+        pitch = self.filter_chunks_by_energy(pitch=pitch)
 
-        return new_pitch
+        return pitch
