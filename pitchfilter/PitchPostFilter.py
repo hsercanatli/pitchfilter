@@ -121,30 +121,31 @@ class PitchPostFilter:
 
                 if (self.are_close(pitch_chunks[i][0][1] / 2.,
                                    pitch_chunks[i - 1][-1][1]) and
-                    pitch_chunks[i][-1][1] / 1.5 > pitch_chunks[i + 1][0][1]) \
+                                pitch_chunks[i][-1][1] / 1.5 >
+                            pitch_chunks[i + 1][0][1]) \
                         or (self.are_close(
                                 med_chunk_i / 2., med_chunk_prev) and
-                            med_chunk_i / 1.5 > med_chunk_follow):
+                                        med_chunk_i / 1.5 > med_chunk_follow):
 
                     for j in range(0, len(pitch_chunks[i])):
                         pitch_chunks[i][j][1] /= 2.
 
                 elif (self.are_close(pitch_chunks[i][-1][1] / 2.,
                                      pitch_chunks[i + 1][0][1]) and
-                      (pitch_chunks[i][0][1] / 1.5 >
-                       pitch_chunks[i - 1][-1][1])) or \
-                     (self.are_close(med_chunk_i / 2., med_chunk_follow) and
-                      med_chunk_i / 1.5 > med_chunk_prev):
+                          (pitch_chunks[i][0][1] / 1.5 >
+                               pitch_chunks[i - 1][-1][1])) or \
+                        (self.are_close(med_chunk_i / 2., med_chunk_follow) and
+                                     med_chunk_i / 1.5 > med_chunk_prev):
                     for j in range(0, len(pitch_chunks[i])):
                         pitch_chunks[i][j][1] /= 2.
 
                 # other condition
                 elif (self.are_close(pitch_chunks[i][0][1] * 2.,
                                      pitch_chunks[i - 1][-1][1]) and
-                      (pitch_chunks[i][-1][1] * 1.5 <
-                       pitch_chunks[i + 1][0][1])) or \
-                     (self.are_close(med_chunk_i * 2., med_chunk_prev) and
-                      med_chunk_prev * 1.5 < med_chunk_follow):
+                          (pitch_chunks[i][-1][1] * 1.5 <
+                               pitch_chunks[i + 1][0][1])) or \
+                        (self.are_close(med_chunk_i * 2., med_chunk_prev) and
+                                     med_chunk_prev * 1.5 < med_chunk_follow):
                     for j in range(0, len(pitch_chunks[i])):
                         pitch_chunks[i][j][1] *= 2.
 
@@ -153,7 +154,7 @@ class PitchPostFilter:
                                           pitch_chunks[i + 1][0][1])) or \
                         (self.are_close(med_chunk_prev * 2,
                                         med_chunk_follow) and
-                         med_chunk_i * 1.5 < med_chunk_prev):
+                                     med_chunk_i * 1.5 < med_chunk_prev):
                     for j in range(0, len(pitch_chunks[i])):
                         pitch_chunks[i][j][1] *= 2.
 
@@ -186,7 +187,7 @@ class PitchPostFilter:
                             and not self.are_close(pitch[i][1],
                                                    pitch[i + 3][1]):
                         pitch[i][1] = pitch[i - 1][1]
-                    if not self.are_close(pitch[i + 2][1], pitch[i - 1][1])\
+                    if not self.are_close(pitch[i + 2][1], pitch[i - 1][1]) \
                             and not self.are_close(pitch[i + 2][1],
                                                    pitch[i + 3][1]):
                         pitch[i + 2][1] = pitch[i + 3][1]
@@ -343,3 +344,6 @@ class PitchPostFilter:
         pitch = self.filter_chunks_by_energy(pitch=pitch)
 
         return pitch
+
+    def filter(self, pitch):
+        return self.run(pitch)
