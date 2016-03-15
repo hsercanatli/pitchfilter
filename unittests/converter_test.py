@@ -1,14 +1,19 @@
 import os
-from musicxmlconverter.symbtr2musicxml import SymbTrScore
-
+import numpy
+import json
+from pitchfilter.PitchFilter import PitchFilter
 
 def test_pitch_filter():
-    pitch = json.load(open("sample_data/feda89e3-a50d-4ff8-87d4-c1e531cc1233"
-                           ".json", 'r'))['pitch']
+    # reading extracted pitch from json
+    pitch = numpy.array(json.load(open(os.path.join("sample_data",
+                     "e72db0ad-2ed9-467b-88ae-1f91edcd2c59.json"), 'r')))
 
     # filtering the extracted pitch
     flt = PitchFilter()
     pitch_filt = flt.run(pitch)
 
-    
-    assert savedxmlstr == xmlstr
+    saved_filt = numpy.array(json.load(open(os.path.join(
+        "sample_data", "e72db0ad-2ed9-467b-88ae-1f91edcd2c59_filtered.json"),
+        'r')))
+
+    assert numpy.allclose(saved_filt, pitch_filt)
