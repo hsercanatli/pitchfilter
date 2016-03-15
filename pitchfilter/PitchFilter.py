@@ -5,7 +5,7 @@ from numpy import histogram
 __author__ = 'hsercanatli'
 
 
-class PitchPostFilter:
+class PitchFilter:
     def __init__(self, lower_interval_thres=0.7, upper_interval_thres=1.3,
                  min_chunk_size=40, min_freq=64, max_freq=1024):
 
