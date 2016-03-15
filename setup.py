@@ -10,6 +10,5 @@ setup(name='pitchfilter',
     packages=['pitchfilter'], 
     install_requires=[
       "numpy",
-      "scipy"
     ],
 )
