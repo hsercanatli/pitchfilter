@@ -121,10 +121,10 @@ class PitchFilter:
 
                 if (self.are_close(pitch_chunks[i][0][1] / 2.,
                                    pitch_chunks[i - 1][-1][1]) and
-                    pitch_chunks[i][-1][1] / 1.5 > pitch_chunks[i + 1][0][1]) \
-                        or (self.are_close(
-                                med_chunk_i / 2., med_chunk_prev) and
-                            med_chunk_i / 1.5 > med_chunk_follow):
+                    (pitch_chunks[i][-1][1] / 1.5 >
+                     pitch_chunks[i + 1][0][1])) or \
+                        (self.are_close(med_chunk_i / 2., med_chunk_prev) and
+                         med_chunk_i / 1.5 > med_chunk_follow):
 
                     for j in range(0, len(pitch_chunks[i])):
                         pitch_chunks[i][j][1] /= 2.
@@ -310,12 +310,12 @@ class PitchFilter:
             temp_energy = [element[2] for element in pitch_chunks[i]]
             ave_energy = sum(temp_energy) / len(temp_energy)
 
-            if ave_energy is not 0:
-                if len(pitch_chunks[i]) <= self.min_chunk_size or \
-                                ave_energy <= min_energy:
-                    for element in pitch_chunks[i]:
-                        element[1] = 0
-                        element[2] = 0
+            if ave_energy is not 0 and (
+                    len(pitch_chunks[i]) <= self.min_chunk_size or
+                    ave_energy <= min_energy):
+                for element in pitch_chunks[i]:
+                    element[1] = 0
+                    element[2] = 0
         pitch = self.recompose_chunks(pitch_chunks=pitch_chunks)
         return pitch
 
