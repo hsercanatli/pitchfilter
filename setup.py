@@ -3,7 +3,7 @@
 from setuptools import setup
 
 setup(name='pitchfilter',
-    version='1.1-tomato',
+    version='1.2',
     description='Post filtering on pitch tracks',
     author='Hasan Sercan Atli',
     url='https://github.com/hsercanatli/pitch-post-filter',
