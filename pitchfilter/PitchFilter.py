@@ -1,6 +1,4 @@
-from numpy import median, mean, std
-from numpy import delete
-from numpy import histogram
+import numpy as np
 
 __author__ = 'hsercanatli'
 
@@ -27,18 +25,18 @@ class PitchFilter:
         # deleting Zero chunks
         zero_chunks = [i for i in range(0, len(pitch_chunks))
                        if pitch_chunks[i][0][1] == 0]
-        pitch_chunks = delete(pitch_chunks, zero_chunks)
+        pitch_chunks = np.delete(pitch_chunks, zero_chunks)
 
         # deleting small Chunks
         small_chunks = [i for i in range(0, len(pitch_chunks))
                         if len(pitch_chunks[i]) <= self.min_chunk_size]
-        pitch_chunks = delete(pitch_chunks, small_chunks)
+        pitch_chunks = np.delete(pitch_chunks, small_chunks)
 
         # frequency limit
         limit_chunks = [i for i in range(0, len(pitch_chunks))
                         if pitch_chunks[i][0][1] >= self.max_freq or
                         pitch_chunks[i][0][1] <= self.min_freq]
-        pitch_chunks = delete(pitch_chunks, limit_chunks)
+        pitch_chunks = np.delete(pitch_chunks, limit_chunks)
 
         return pitch_chunks
 
@@ -106,18 +104,18 @@ class PitchFilter:
             if float(pitch_chunks[j][0][1]) == 0.:
                 zero_chunks.append([j, pitch_chunks[j]])
                 zero_ind.append(j)
-        pitch_chunks = list(delete(pitch_chunks, zero_ind))
+        pitch_chunks = list(np.delete(pitch_chunks, zero_ind))
 
         for i in range(1, len(pitch_chunks) - 1):
             if (len(pitch_chunks[i]) <= len(pitch_chunks[i - 1]) * 1.2) or \
                     (len(pitch_chunks[i]) <= len(pitch_chunks[i + 1]) * 1.2):
 
-                med_chunk_i = median([element[1]
-                                      for element in pitch_chunks[i]])
-                med_chunk_follow = median([element[1]
-                                           for element in pitch_chunks[i + 1]])
-                med_chunk_prev = median([element[1]
-                                         for element in pitch_chunks[i - 1]])
+                med_chunk_i = np.median([element[1]
+                                         for element in pitch_chunks[i]])
+                med_chunk_follow = np.median(
+                    [element[1] for element in pitch_chunks[i + 1]])
+                med_chunk_prev = np.median(
+                    [element[1] for element in pitch_chunks[i - 1]])
 
                 if (self.are_close(pitch_chunks[i][0][1] / 2.,
                                    pitch_chunks[i - 1][-1][1]) and
@@ -213,7 +211,7 @@ class PitchFilter:
 
     def correct_oct_error(self, pitch):
         pitch_series = [pitch[i][1] for i in range(len(pitch))]
-        midf0 = (median(pitch_series) + mean(pitch_series)) / 2
+        midf0 = (np.median(pitch_series) + np.mean(pitch_series)) / 2
 
         for i in range(4, len(pitch) - 2):
             # if previous values are continuous
@@ -237,10 +235,10 @@ class PitchFilter:
     def remove_extreme_values(pitch):
         pitch_series = [element[1] for element in pitch]
         pitch_max = max(pitch_series)
-        pitch_mean = mean(pitch_series)
-        pitch_std = std(pitch_series)
+        pitch_mean = np.mean(pitch_series)
+        pitch_std = np.std(pitch_series)
 
-        n = list(histogram(pitch_series, 100))
+        n = list(np.histogram(pitch_series, 100))
 
         for i in range(0, len(n[1]) - 1):
             if n[0][i] == 0 and n[0][i + 1] == 0:
@@ -342,7 +340,7 @@ class PitchFilter:
         pitch = self.correct_octave_errors_by_chunks(pitch=pitch)
         pitch = self.filter_chunks_by_energy(pitch=pitch)
 
-        return pitch
+        return np.array(pitch)
 
     def filter(self, pitch):
         return self.run(pitch)
