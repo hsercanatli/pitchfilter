@@ -1,10 +1,10 @@
 pitchpostfilter
 ===========
 
-Introduction
-------------
 Repository for post-processing pitch tracks to filter erroneous estimations and correct octave errors.
 
+Introduction
+------------
 This repository implements the post-filtering methodology explained in _Bozkurt, B. (2008)_.
 
 Given a pitch track, the algorithm:
