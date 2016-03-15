@@ -47,15 +47,10 @@ install compmusic like this instead
 
     pip install -e .
 
-Author
+Authors
 -------
-Hasan Sercan Atlı 
-hsercanatli@gmail.com
-
-Contributors
--------
-Sertan Şentürk (packaging) 
-contact@sertansenturk.com
+Hasan Sercan Atlı	hsercanatli@gmail.com  
+Sertan Senturk		contact@sertansenturk.com
 
 References
 -------
