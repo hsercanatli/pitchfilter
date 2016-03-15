@@ -1,4 +1,4 @@
-pitch-post-filter
+pitchpostfilter
 ===========
 
 Introduction
