@@ -47,10 +47,6 @@ install compmusic like this instead
 
     pip install -e .
 
-Now you can install the rest of the dependencies:
-
-    pip install -r requirements
-
 Author
 -------
 Hasan Sercan Atlı 
