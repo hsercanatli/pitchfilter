@@ -1,4 +1,4 @@
-pitchpostfilter
+pitchfilter
 ===========
 
 Repository for post-processing pitch tracks to filter erroneous estimations and correct octave errors.
@@ -21,20 +21,21 @@ In the following example, the algorithm filters the pitch track of [feda89e3-a50
 
 ```python
 import json
-from pitchfilter.pitchfilter import PitchPostFilter
+from pitchfilter.PitchFilter import PitchFilter
+import numpy
 
 # reading extracted pitch from json
-pitch = json.load(open("sample_data/feda89e3-a50d-4ff8-87d4-c1e531cc1233.json", 'r'))['pitch']
+pitch = numpy.array(json.load(open("sample_data/feda89e3-a50d-4ff8-87d4-c1e531cc1233.json", 'r'))['pitch'])
 
 # filtering the extracted pitch
-flt = PitchPostFilter()
-pitch = flt.run(pitch)
+flt = PitchFilter()
+pitch_filt = flt.run(pitch)
 ```
 
 Installation
 ============
 
-If you want to install pitch-post-filter, it is recommended to install the repository and its dependencies into a virtualenv. 
+If you want to install pitchfilter, it is recommended to install the repository and its dependencies into a virtualenv. 
 
 In the terminal, do the following:
 
@@ -42,8 +43,7 @@ In the terminal, do the following:
     source env/bin/activate
     python setup.py install
 
-If you want to be able to edit files and have the changes be reflected, then
-install compmusic like this instead
+If you want to be able to edit files and have the changes be reflected, then install the package like this instead:
 
     pip install -e .
 
