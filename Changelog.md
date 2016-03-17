@@ -1,3 +1,6 @@
+#### *v1.2.1*
+ - Temporary fix for the chunk computation to output numpy arrays
+
 #### *v1.2* via [Pull request 8](https://github.com/hsercanatli/pitch-post-filter/pull/8)
 - Renamed the PitchFilter class and filename
 - Added unittests
