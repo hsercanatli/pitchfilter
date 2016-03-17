@@ -14,7 +14,7 @@ Given a pitch track, the algorithm:
 - removes extremely high or low pitch estimations
 
 Usage
-=======
+-------
 The method accepts numpy arrays, where the first column holds the time stamps (in seconds), the second column holds the frequencies (in Hz) and the third column holds the pitch saliences/confidence.
 
 In the following example, the algorithm filters the pitch track of [feda89e3-a50d-4ff8-87d4-c1e531cc1233](http://musicbrainz.org/recording/feda89e3-a50d-4ff8-87d4-c1e531cc1233) extracted using [Predominant Melody Extractor](https://github.com/sertansenturk/predominantmelodymakam) repository.
@@ -33,7 +33,7 @@ pitch_filt = flt.run(pitch)
 ```
 
 Installation
-============
+-------
 
 If you want to install pitchfilter, it is recommended to install the repository and its dependencies into a virtualenv. 
 
