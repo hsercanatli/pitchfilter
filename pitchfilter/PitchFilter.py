@@ -56,7 +56,7 @@ class PitchFilter(object):
                 else:
                     temp_pitch.append(pitch[i])
                     if len(temp_pitch) > 0:
-                        pitch_chunks.append(temp_pitch)
+                        pitch_chunks.append(np.array(temp_pitch))
                     temp_pitch = []
             # non-zero chunks
             else:
@@ -67,10 +67,10 @@ class PitchFilter(object):
                 else:
                     temp_pitch.append(pitch[i])
                     if len(temp_pitch) > 0:
-                        pitch_chunks.append(temp_pitch)
+                        pitch_chunks.append(np.array(temp_pitch))
                     temp_pitch = []
         if len(temp_pitch) > 0:
-            pitch_chunks.append(temp_pitch)
+            pitch_chunks.append(np.array(temp_pitch))
 
         return pitch_chunks
 
@@ -81,7 +81,7 @@ class PitchFilter(object):
         """
         pitch = [pitch_chunks[i][j] for i in range(len(pitch_chunks))
                  for j in range(len(pitch_chunks[i]))]
-        return pitch
+        return np.array(pitch)
 
     @staticmethod
     def are_close(num1, num2):
