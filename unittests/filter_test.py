@@ -1,7 +1,7 @@
 import os
 import numpy
 import json
-from pitchfilter.PitchFilter import PitchFilter
+from pitchfilter.pitchfilter import PitchFilter
 
 
 def test_pitch_filter():

@@ -21,7 +21,7 @@ In the following example, the algorithm filters the pitch track of [feda89e3-a50
 
 ```python
 import json
-from pitchfilter.PitchFilter import PitchFilter
+from pitchfilter.pitchfilter import PitchFilter
 import numpy
 
 # reading extracted pitch from json
