@@ -45,30 +45,40 @@ class PitchFilter(object):
         decomposes the given pitch track into the chunks.
         """
         pitch_chunks = []
-        temp_pitch = [pitch[0]]
+        temp_pitch = []
 
         # starts at the first sample
-        for i in range(1, len(pitch) - 1):
+        for i in range(0, len(pitch) - 1):
             # separation of the zero chunks
             if pitch[i][1] == 0:
                 if pitch[i + 1][1] == 0:
-                    temp_pitch.append(pitch[i + 1])
+                    temp_pitch.append(pitch[i])
+                    if i + 1 == len(pitch) - 1:  # last element
+                        temp_pitch.append(pitch[i + 1])
                 else:
                     temp_pitch.append(pitch[i])
                     if len(temp_pitch) > 0:
                         pitch_chunks.append(np.array(temp_pitch))
-                    temp_pitch = []
+                    if i + 1 == len(pitch) - 1:  # last element
+                        temp_pitch = [pitch[i + 1]]
+                    else:
+                        temp_pitch = []
             # non-zero chunks
             else:
                 interval = float(pitch[i + 1][1]) / float(pitch[i][1])
                 if (self.lower_interval_thres < interval <
                         self.upper_interval_thres):
                     temp_pitch.append(pitch[i])
+                    if i + 1 == len(pitch) - 1:  # last element
+                        temp_pitch.append(pitch[i + 1])
                 else:
                     temp_pitch.append(pitch[i])
                     if len(temp_pitch) > 0:
                         pitch_chunks.append(np.array(temp_pitch))
-                    temp_pitch = []
+                    if i + 1 == len(pitch) - 1:  # last element
+                        temp_pitch = [pitch[i + 1]]
+                    else:
+                        temp_pitch = []
         if len(temp_pitch) > 0:
             pitch_chunks.append(np.array(temp_pitch))
 
@@ -320,25 +330,25 @@ class PitchFilter(object):
     def run(self, pitch):
         for element in pitch:
             if element[1] == 0 or element[1] == 0.:
-                element[1] = 0.
+                element[1] = 0.0
 
-        pitch = self.correct_octave_errors_by_chunks(pitch=pitch)
-        pitch = self.remove_extreme_values(pitch=pitch)
+        pitch = self.correct_octave_errors_by_chunks(pitch)
+        pitch = self.remove_extreme_values(pitch)
 
-        pitch = self.correct_jumps(pitch=pitch)
+        pitch = self.correct_jumps(pitch)
         pitch = list(reversed(pitch))
-        pitch = self.correct_jumps(pitch=pitch)
-        pitch = list(reversed(pitch))
-
-        pitch = self.filter_noise_region(pitch=pitch)
-
-        pitch = self.correct_oct_error(pitch=pitch)
-        pitch = list(reversed(pitch))
-        pitch = self.correct_oct_error(pitch=pitch)
+        pitch = self.correct_jumps(pitch)
         pitch = list(reversed(pitch))
 
-        pitch = self.correct_octave_errors_by_chunks(pitch=pitch)
-        pitch = self.filter_chunks_by_energy(pitch=pitch)
+        pitch = self.filter_noise_region(pitch)
+
+        pitch = self.correct_oct_error(pitch)
+        pitch = list(reversed(pitch))
+        pitch = self.correct_oct_error(pitch)
+        pitch = list(reversed(pitch))
+
+        pitch = self.correct_octave_errors_by_chunks(pitch)
+        pitch = self.filter_chunks_by_energy(pitch)
 
         return np.array(pitch)
 
