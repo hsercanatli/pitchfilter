@@ -25,18 +25,21 @@ class PitchFilter(object):
         # deleting Zero chunks
         zero_chunks = [i for i in range(0, len(pitch_chunks))
                        if pitch_chunks[i][0][1] == 0]
-        pitch_chunks = np.delete(pitch_chunks, zero_chunks)
+        if zero_chunks:
+            pitch_chunks = np.delete(pitch_chunks, zero_chunks)
 
         # deleting small Chunks
         small_chunks = [i for i in range(0, len(pitch_chunks))
                         if len(pitch_chunks[i]) <= self.min_chunk_size]
-        pitch_chunks = np.delete(pitch_chunks, small_chunks)
+        if small_chunks:
+            pitch_chunks = np.delete(pitch_chunks, small_chunks)
 
         # frequency limit
         limit_chunks = [i for i in range(0, len(pitch_chunks))
                         if pitch_chunks[i][0][1] >= self.max_freq or
                         pitch_chunks[i][0][1] <= self.min_freq]
-        pitch_chunks = np.delete(pitch_chunks, limit_chunks)
+        if limit_chunks:
+            pitch_chunks = np.delete(pitch_chunks, limit_chunks)
 
         return pitch_chunks
 
