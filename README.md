@@ -50,7 +50,7 @@ If you want to be able to edit files and have the changes be reflected, then ins
 Authors
 -------
 Hasan Sercan Atlı	hsercanatli@gmail.com  
-Sertan Senturk		contact@sertansenturk.com
+Sertan Şentürk		contact@sertansenturk.com
 
 References
 -------
